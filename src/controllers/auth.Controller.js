@@ -2,7 +2,7 @@ const { createUser, check_user } = require("../models/auth.model");
 const validator = require("validator");
 const { upsetStreamUser } = require("../config/streamChat");
 const bcrypt = require("bcrypt");
-const { asign_token, verify } = require("../utils/jwt"); //need id as pay load
+const { asign_token, verifyRefreshToken } = require("../utils/jwt"); //need id as pay load
 exports.sign_up = async (req, res) => {
   const { email, password, fullName } = req.body;
   if (!email || !password || !fullName) {
@@ -66,14 +66,7 @@ exports.sign_up = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-exports.sign_out = async (req, res) => {
-  try {
-    res.clearCookie("REFRESH_TOKEN");
-    res.status(200).json({ message: "logged out successfully" });
-  } catch (error) {
-    console.error(error);
-  }
-};
+
 exports.sign_in = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -102,13 +95,14 @@ exports.sign_in = async (req, res) => {
       .json({ ACCESS_TOKEN, message: "user successfully sign in" });
   } catch (error) {
     console.error(error);
+     res.status(500).json({ message: "server error " });
   }
 };
 exports.refresh_token = async (req, res) => {
-  const { REFRESH_TOKEN } = req.cookies;
-  if (!REFRESH_TOKEN) return res.sendStatus(401).json({ message: "sign in" });
+  const { REFRESH_TOKEN:oldRefresh_token } = req.cookies;
+  if (!oldRefresh_token) return res.sendStatus(401).json({ message: "sign in" });
   try {
-    const ismatch = verify(REFRESH_TOKEN);
+    const ismatch = verifyRefreshToken(oldRefresh_token);
     if (!ismatch)
       return res.sendStatus(401).json({ message: "sign in please" });
     const id = ismatch.id;
@@ -124,5 +118,6 @@ exports.refresh_token = async (req, res) => {
       .json({ ACCESS_TOKEN, message: "user successfully sign in" });
   } catch (error) {
     console.error(error);
+     res.status(500).json({ message: "server error " });
   }
 };

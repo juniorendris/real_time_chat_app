@@ -6,7 +6,9 @@ app.use(express.json());
 app.use(cookie_parser());
 const PORT = process.env.PORT || 3000;
 const { createTable } = require("./config");
+
 app.use("/api/auth/", require("./routes/auth.Routes"));
+app.use("/api/user/", require("./routes/user.Routes"));
 
 app.listen(PORT, async () => {
   try {

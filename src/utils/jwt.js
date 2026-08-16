@@ -12,6 +12,16 @@ const  REFRESH_TOKEN= jwt.sign(
 
   return({ACCESS_TOKEN,REFRESH_TOKEN});
 };
-exports.verify=(token)=>{
-  return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-}
+exports.verifyAccessToken = (token) => {
+    return jwt.verify(
+        token,
+        process.env.ACCESS_TOKEN_SECRET
+    );
+};
+
+exports.verifyRefreshToken = (token) => {
+    return jwt.verify(
+        token,
+        process.env.REFRESH_TOKEN_SECRET
+    );
+};
