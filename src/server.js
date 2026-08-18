@@ -9,7 +9,7 @@ const { createTable } = require("./config");
 
 app.use("/api/auth/", require("./routes/auth.Routes"));
 app.use("/api/user/", require("./routes/user.Routes"));
-
+app.use('/api/chat/',require('./routes/chat.Routes'));
 app.listen(PORT, async () => {
   try {
     console.log(`server is running on port ${PORT} `);
