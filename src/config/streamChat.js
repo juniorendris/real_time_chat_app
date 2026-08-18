@@ -7,13 +7,24 @@ if (!api_key || !api_key_secret) {
 }
 const client = StreamChat.getInstance(api_key, api_key_secret);
 
-exports.upsetStreamUser = async (userData) => {
+
+//upsetStream for signup
+exports.upsetStreamUserSign_up=async (userData) => {
   try {
     await client.upsertUser(userData);
   } catch (error) {
     console.error("upserting user data", error);
   }
 };
+// upsetStream for onboarding
+exports.upsetStreamUser = async (userData) => {
+  try {
+    await client.partialUpdateUser(userData);
+  } catch (error) {
+    console.error("upserting user data", error);
+  }
+};
+//token
 exports.generateToken = async (userId) => {
   const id = userId.toString();
   try {

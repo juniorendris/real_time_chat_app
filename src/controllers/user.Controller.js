@@ -23,7 +23,7 @@ exports.sign_out = async (req, res) => {
 exports.onboarding = async (req, res) => {
   const { id } = req.user;
 
-  const { fullName, skill, language, location, bio } = req.body;
+  const { fullName, skill, language, location, bio } = req.body||{};
   if (!fullName || !skill || !language || !location || !bio) {
     res.status(400).json({ message: "Missing required information" });
   }
@@ -36,14 +36,16 @@ exports.onboarding = async (req, res) => {
         .json({ message: "no such user please be sure that are sign up" });
     }
 
-    await upsetStreamUser({
-      id: id.toString(),
-      name: fullName,
-      skill: skill,
-      language: language,
-      location: location,
-      bio: bio,
-    });
+   await upsetStreamUser({
+  id: id.toString(),
+  set: {
+    name: fullName,
+    skill: skill,
+    language: language,
+    location: location,
+    bio: bio,
+  },
+});
     return res.status(200).json({
       message: "Onboarding completed successfully",
     });

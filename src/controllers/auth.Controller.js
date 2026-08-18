@@ -1,10 +1,10 @@
 const { createUser, check_user } = require("../models/auth.model");
 const validator = require("validator");
-const { upsetStreamUser } = require("../config/streamChat");
+const { upsetStreamUserSign_up } = require("../config/streamChat");
 const bcrypt = require("bcrypt");
 const { asign_token, verifyRefreshToken } = require("../utils/jwt"); //need id as pay load
 exports.sign_up = async (req, res) => {
-  const { email, password, fullName } = req.body;
+  const { email, password, fullName } = req.body||{};
   if (!email || !password || !fullName) {
     console.log("required data is not fullfild");
     return res
@@ -38,10 +38,11 @@ exports.sign_up = async (req, res) => {
     const [response] = await createUser(data);
 
     //create user in stream chat
-    await upsetStreamUser({
-      id: response.insertId.toString(),
-      name: fullName,
+     await upsetStreamUserSign_up({
+      id:response.insertId.toString(),
+        name: fullName,
       image: avatarUrl || "",
+    
     });
 
     if (response.affectedRows === 0) {
@@ -68,7 +69,7 @@ exports.sign_up = async (req, res) => {
 };
 
 exports.sign_in = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body||{};
   if (!email || !password) {
     return res.json({ messsage: "pleace fulfil requird information!" });
   }
@@ -99,7 +100,7 @@ exports.sign_in = async (req, res) => {
   }
 };
 exports.refresh_token = async (req, res) => {
-  const { REFRESH_TOKEN: oldRefresh_token } = req.cookies;
+  const { REFRESH_TOKEN: oldRefresh_token } = req.cookies || {};
 
   if (!oldRefresh_token)
     return res.sendStatus(401).json({ message: "sign in" });

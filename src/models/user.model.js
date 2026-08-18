@@ -24,7 +24,8 @@ SET fullName = ?,
     skill = ?,
     language = ?,
     location = ?,
-    bio = ?
+    bio = ?,
+    isOnboarded = TRUE
 WHERE id = ?;
 `;
   return pool.execute(onbordingCmd, data);
