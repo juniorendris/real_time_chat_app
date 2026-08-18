@@ -5,6 +5,7 @@ const {
   getRecomondedFriend,
   onboarding,
   getProfile,
+  getfreinds,sendFriendRequest,accept_friendRequest,
 } = require("../controllers/user.Controller");
 
 // midle ware
@@ -12,11 +13,12 @@ Router.use(auth);
 
 //for log out and refreshtoken
 Router.post("/log_out", sign_out);
-// Router.post("/refresh", refresh_token);
 
 //onboard
-
+Router.get("/",getRecomondedFriend);
 Router.post("/onboarding", onboarding);
 Router.get("/profile", getProfile);
-Router.get("/recomonded",getRecomondedFriend);
+Router.get('/friends',getfreinds);
+Router.post('/friend-request/:id',sendFriendRequest);
+Router.post('/friend-request/:id/:states',accept_friendRequest);
 module.exports = Router;

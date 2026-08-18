@@ -1,7 +1,7 @@
-const {pool} = require('./pool');
+const { pool } = require("./pool");
 
 const createTable = async () => {
-    const userTable = `
+  const userTable = `
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
             fullName VARCHAR(255) NOT NULL,
@@ -19,7 +19,7 @@ const createTable = async () => {
         );
     `;
 
-    const createUserFriendsTable = `
+  const createUserFriendsTable = `
         CREATE TABLE IF NOT EXISTS user_friends (
             user_id INT NOT NULL,
             friend_id INT NOT NULL,
@@ -35,16 +35,26 @@ const createTable = async () => {
                 ON DELETE CASCADE
         );
     `;
+  const request = `CREATE TABLE IF NOT EXISTS friend_requests (    
+  id INT AUTO_INCREMENT PRIMARY KEY,    
+  sender_id INT NOT NULL,    
+  receiver_id INT NOT NULL,    
+  status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',    
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,    
+  FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE    
+);  `;
+  try {
+    await pool.execute(userTable);
+    console.log("✔ users table created successfully");
 
-    try {
-        await pool.execute(userTable);
-        console.log('✔ users table created successfully');
-
-        await pool.execute(createUserFriendsTable);
-        console.log('✔ user_friends table created successfully');
-
-    } catch (error) {
-        console.error('❌ Error creating tables:', error);
-    }
+    await pool.execute(createUserFriendsTable);
+    console.log("✔ user_friends table created successfully");
+    await pool.execute(request);
+    console.log("✔ request table created successfully");
+  } catch (error) {
+    console.error("❌ Error creating tables:", error);
+  }
 };
-module.exports={createTable}
+module.exports = { createTable };

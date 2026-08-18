@@ -95,18 +95,26 @@ exports.sign_in = async (req, res) => {
       .json({ ACCESS_TOKEN, message: "user successfully sign in" });
   } catch (error) {
     console.error(error);
-     res.status(500).json({ message: "server error " });
+    res.status(500).json({ message: "server error " });
   }
 };
 exports.refresh_token = async (req, res) => {
-  const { REFRESH_TOKEN:oldRefresh_token } = req.cookies;
-  if (!oldRefresh_token) return res.sendStatus(401).json({ message: "sign in" });
+  const { REFRESH_TOKEN: oldRefresh_token } = req.cookies;
+
+  if (!oldRefresh_token)
+    return res.sendStatus(401).json({ message: "sign in" });
+
   try {
     const ismatch = verifyRefreshToken(oldRefresh_token);
-    if (!ismatch)
+
+    if (!ismatch) {
       return res.sendStatus(401).json({ message: "sign in please" });
+    }
+
     const id = ismatch.id;
+
     const { ACCESS_TOKEN, REFRESH_TOKEN } = asign_token(id);
+
     res.cookie("REFRESH_TOKEN", REFRESH_TOKEN, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -118,6 +126,6 @@ exports.refresh_token = async (req, res) => {
       .json({ ACCESS_TOKEN, message: "user successfully sign in" });
   } catch (error) {
     console.error(error);
-     res.status(500).json({ message: "server error " });
+    res.status(500).json({ message: "server error " });
   }
 };
