@@ -6,6 +6,9 @@ const {
   freinds,
   createFriendRequest,
   resiveFriendsRequst,
+  incomingRequest,
+  acceptedRequest,
+  outGoingRequets,
 } = require("../models/user.model");
 
 exports.sign_out = async (req, res) => {
@@ -63,6 +66,7 @@ exports.getProfile = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "internal error /serve error" });
   }
 };
 exports.getRecomondedFriend = async (req, res) => {
@@ -115,8 +119,8 @@ exports.sendFriendRequest = async (req, res) => {
 };
 exports.accept_friendRequest = async (req, res) => {
   const { id: myId } = req.user;
-  const { id: freindId ,states} = req.params;
-  if (!freindId || (states !== "rejected" &&  states !== "accepted")) {
+  const { id: freindId, states } = req.params;
+  if (!freindId || (states !== "rejected" && states !== "accepted")) {
     return res
       .status(400)
       .json({ message: "pleace sure you send id and states that" });
@@ -127,11 +131,41 @@ exports.accept_friendRequest = async (req, res) => {
     });
   }
   try {
-    const response =await resiveFriendsRequst(myId, freindId, states);
-        res.status(response.status).json({message:response.message});
+    const response = await resiveFriendsRequst(myId, freindId, states);
+    res.status(response.status).json({ message: response.message });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "internal error /serve error" });
   }
 };
+exports.getfreindsRequest = async (req, res) => {
+  const { id } = req.user;
+  try {
+    const [incommingRequestResult] = await incomingRequest(id);
 
+    const [acceptedRequestResult] = await acceptedRequest(id);
+
+    res.status(200).json({
+      friendRegests: incommingRequestResult,
+      acceptedRequests: acceptedRequestResult,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "internal error /serve error" });
+  }
+};
+exports.getOutGoingRequet = async (req, res) => {
+  const { id } = req.user;
+  try {
+    const [rows] = await outGoingRequets(id);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "NO OUTOING REQUEST" });
+    }
+    res.status(200).json({
+      outGoingRequets: rows,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "internal error /serve error" });
+  }
+};

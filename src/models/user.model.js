@@ -1,4 +1,3 @@
-
 const { pool } = require("../config");
 
 exports.Profile = async (id) => {
@@ -141,7 +140,6 @@ exports.resiveFriendsRequst = async (myId, FriendId, states) => {
       states,
       FriendId,
       myId,
-      
     ]);
     if (updateResult.affectedRows === 0) {
       throw new Error("Friend request was not found or could not be updated.");
@@ -167,4 +165,30 @@ exports.resiveFriendsRequst = async (myId, FriendId, states) => {
     throw new Error(error);
   }
 };
+exports.incomingRequest = (id) => {
+  const sql = `
+    SELECT 
+      u.fullName,
+      u.location,
+      u.image,
+      u.skill,
+      u.language,
+      fr.created_at,
+      fr.status
+    FROM friend_requests fr
+    JOIN users u ON u.id = fr.sender_id
+    WHERE fr.receiver_id = ?
+      AND fr.status = 'pending'
+    ORDER BY fr.created_at DESC
+`;
 
+  return pool.execute(sql, [id]);
+};
+exports.acceptedRequest = (id) => {
+  const sql = `SELECT u.fullName,u.location,u.image,u.skill,u.language,fr.created_at , fr.status FROM friend_requests fr JOIN users u ON u.id = fr.sender_id WHERE fr.receiver_id=? AND fr.status='accepted' ORDER BY fr.created_at DESC; `;
+  return pool.execute(sql, [id]);
+};
+exports.outGoingRequets = (id) => {
+  const sql = `SELECT u.fullName,u.location,u.image,u.skill,u.language,fr.created_at, fr.status FROM friend_requests fr JOIN users u ON u.id=fr.receiver_id WHERE fr.sender_id=? AND fr.status='pending' ORDER BY fr.created_at DESC; `;
+  return pool.execute(sql, [id]);
+};
