@@ -5,29 +5,20 @@ const {
   recommendedUsers,
   freinds,
   createFriendRequest,
+  deleteRequest,
   resiveFriendsRequst,
   incomingRequest,
   acceptedRequest,
   outGoingRequets,
 } = require("../models/user.model");
-
-exports.sign_out = async (req, res) => {
-  try {
-    res.clearCookie("REFRESH_TOKEN");
-    res.status(200).json({ message: "logged out successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "server error " });
-  }
-};
 exports.onboarding = async (req, res) => {
   const { id } = req.user;
 
-  const { fullName, skill, language, location, bio } = req.body||{};
-  if (!fullName || !skill || !language || !location || !bio) {
+  const { fullName, skill, language, location, bio, image } = req.body || {};
+  if (!fullName || !skill || !language || !location || !bio || !image) {
     res.status(400).json({ message: "Missing required information" });
   }
-  const data = [fullName, skill, language, location, bio, id];
+  const data = [fullName, skill, language, location, bio, image, id];
   try {
     const [response] = await update(data);
     if (response.affectedRows === 0) {
@@ -36,16 +27,16 @@ exports.onboarding = async (req, res) => {
         .json({ message: "no such user please be sure that are sign up" });
     }
 
-   await upsetStreamUser({
-  id: id.toString(),
-  set: {
-    name: fullName,
-    skill: skill,
-    language: language,
-    location: location,
-    bio: bio,
-  },
-});
+    await upsetStreamUser({
+      id: id.toString(),
+      set: {
+        name: fullName,
+        skill: skill,
+        language: language,
+        location: location,
+        bio: bio,
+      },
+    });
     return res.status(200).json({
       message: "Onboarding completed successfully",
     });
@@ -57,12 +48,13 @@ exports.onboarding = async (req, res) => {
 exports.getProfile = async (req, res) => {
   const { id } = req.user;
   try {
-    const { userinfo } = await Profile(id);
+    const [userinfo] = await Profile(id);
     if (userinfo.length === 0) {
       res.status(404).json({ message: "no user " });
     }
 
     delete userinfo[0].password;
+    delete userinfo[0].email;
     res.status(200).json({
       user: userinfo[0],
     });
@@ -76,7 +68,7 @@ exports.getRecomondedFriend = async (req, res) => {
   try {
     const [rows] = await recommendedUsers(id);
     if (rows.length === 0) {
-      res.json({ message: "NO FRIENDS" });
+      return res.status(200).json({ message: "NO FRIENDS" });
     }
     return res.status(200).json({
       message: "recomoneded user are sent successfully",
@@ -119,6 +111,31 @@ exports.sendFriendRequest = async (req, res) => {
     res.status(500).json({ message: "internal error pleace try againn later" });
   }
 };
+exports.deleteFriendRequest = async (req, res) => {
+  const { id: sender } = req.user;
+  const { id: resipient } = req.params;
+
+  if (!resipient) {
+    return res.status(400).json({ message: "Recipient id is needed" });
+  }
+
+  if (sender.toString() === resipient) {
+    return res.status(400).json({
+      message: "You can't send a friend request to yourself",
+    });
+  }
+
+  try {
+    const [result] = await deleteRequest(sender, resipient);
+    if (result.affectedRows === 0) {
+      return res.status(400).json({ message: "you didnt request yet!" });
+    }
+    return res.status(200).json({ message: "✔unRequest succssfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "internal error pleace try againn later" });
+  }
+};
 exports.accept_friendRequest = async (req, res) => {
   const { id: myId } = req.user;
   const { id: freindId, states } = req.params;
@@ -144,12 +161,20 @@ exports.getfreindsRequest = async (req, res) => {
   const { id } = req.user;
   try {
     const [incommingRequestResult] = await incomingRequest(id);
-
-    const [acceptedRequestResult] = await acceptedRequest(id);
-
     res.status(200).json({
       friendRegests: incommingRequestResult,
-      acceptedRequests: acceptedRequestResult,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "internal error /serve error" });
+  }
+};
+exports.getAcceptedfreindsRequest = async (req, res) => {
+  const { id } = req.user;
+  try {
+    const [acceptedFriends] = await acceptedRequest(id);
+    res.status(200).json({
+      acceptedFriends,
     });
   } catch (error) {
     console.error(error);

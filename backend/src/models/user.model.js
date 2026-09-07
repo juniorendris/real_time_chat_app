@@ -3,15 +3,14 @@ const { pool } = require("../config");
 exports.Profile = async (id) => {
   const getuserCmd = `SELECT * from users WHERE id=?`;
   try {
-    const userinfo = await pool.execute(getuserCmd, [id]);
-    return { userinfo };
+    return pool.execute(getuserCmd, [id]);
   } catch (error) {
     console.error(error);
   }
 };
 exports.freinds = (id) => {
   const getFriendsCmd = `
-    SELECT u.fullNmae, u.image, u.skill,  u.language, u.location, u.bio 
+    SELECT u.id,u.fullName, u.image, u.skill,  u.language, u.location, u.bio 
     FROM user_friends uf
     JOIN users u ON u.id = uf.friend_id
     WHERE uf.user_id = ?
@@ -25,6 +24,7 @@ SET fullName = ?,
     language = ?,
     location = ?,
     bio = ?,
+     image=?,
     isOnboarded = TRUE
 WHERE id = ?;
 `;
@@ -32,7 +32,7 @@ WHERE id = ?;
 };
 exports.recommendedUsers = async (id) => {
   const userCmd = `SELECT skill, language, location FROM users WHERE id=?`;
-  const getRecomdedFriend = `SELECT id, fullName, image, bio FROM users  WHERE id != ? AND (skill = ?
+  const getRecomdedFriend = `SELECT u.id, u.fullName, u.image, u.bio,u.location,u.language,u.skill FROM users u WHERE id != ? AND (skill = ?
     OR language = ?
     OR location = ?
 )
@@ -40,7 +40,18 @@ exports.recommendedUsers = async (id) => {
     SELECT uf.friend_id
     FROM user_friends uf
     WHERE uf.user_id = ?
-);`;
+)
+    AND NOT EXISTS (
+  SELECT 1
+  FROM friend_requests fr
+  WHERE fr.status = 'pending'
+    AND (
+      (fr.sender_id = ? AND fr.receiver_id = u.id)
+      OR
+      (fr.sender_id = u.id AND fr.receiver_id = ?)
+    )
+)
+    LIMIT 8;`;
   try {
     const [user] = await pool.execute(userCmd, [id]);
     if (user.length === 0) {
@@ -52,6 +63,8 @@ exports.recommendedUsers = async (id) => {
       user[0].skill,
       user[0].language,
       user[0].location,
+      id,
+      id,
       id,
     ]);
   } catch (error) {
@@ -116,6 +129,12 @@ exports.createFriendRequest = async (senderId, receiverId) => {
     throw new Error(error);
   }
 };
+exports.deleteRequest = (senderId, receiverId) => {
+  const deletesql = `DELETE FROM friend_requests
+    WHERE sender_id = ?
+      AND receiver_id = ?`;
+  return pool.execute(deletesql, [senderId, receiverId]);
+};
 exports.resiveFriendsRequst = async (myId, FriendId, states) => {
   const isThereFriend = `SELECT 1 FROM  users WHERE id=? AND isOnboarded=true`;
   const isThereReq = `SELECT 1 FROM friend_requests where sender_id=? AND receiver_id=?`;
@@ -169,6 +188,7 @@ exports.resiveFriendsRequst = async (myId, FriendId, states) => {
 exports.incomingRequest = (id) => {
   const sql = `
     SELECT 
+     u.id,
       u.fullName,
       u.location,
       u.image,
@@ -186,10 +206,20 @@ exports.incomingRequest = (id) => {
   return pool.execute(sql, [id]);
 };
 exports.acceptedRequest = (id) => {
-  const sql = `SELECT u.fullName,u.location,u.image,u.skill,u.language,fr.created_at , fr.status FROM friend_requests fr JOIN users u ON u.id = fr.sender_id WHERE fr.receiver_id=? AND fr.status='accepted' ORDER BY fr.created_at DESC; `;
+  const sql = `
+    SELECT u.id, u.fullName, u.location, u.image,
+           u.skill, u.language, u.bio,fr.created_at, fr.status
+    FROM friend_requests fr
+    JOIN users u ON u.id = fr.receiver_id
+    WHERE fr.sender_id = ?
+      AND fr.status = 'accepted'
+    ORDER BY fr.created_at DESC
+    LIMIT 10;
+  `;
+
   return pool.execute(sql, [id]);
 };
 exports.outGoingRequets = (id) => {
-  const sql = `SELECT u.fullName,u.location,u.image,u.skill,u.language,fr.created_at, fr.status FROM friend_requests fr JOIN users u ON u.id=fr.receiver_id WHERE fr.sender_id=? AND fr.status='pending' ORDER BY fr.created_at DESC; `;
+  const sql = `SELECT u.id, u.fullName,u.location,u.image,u.skill,u.language,fr.created_at, fr.status FROM friend_requests fr JOIN users u ON u.id=fr.receiver_id WHERE fr.sender_id=? AND fr.status='pending' ORDER BY fr.created_at DESC; `;
   return pool.execute(sql, [id]);
 };

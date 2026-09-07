@@ -33,7 +33,7 @@ exports.sign_up = async (req, res) => {
     const randomSeed = Math.random().toString(36).substring(2, 9);
 
     // Construct dynamic URL
-    const avatarUrl = `https://api.dicebear.com/10.x/avataaars/svg?borderRadius=50&translateX=0&translateY=3&scale=0.48&seed=${randomSeed}`;
+    const avatarUrl = `https://api.dicebear.com/10.x/avataaars/svg?borderRadius=50&translateX=0&translateY=0&scale=1&seed=${randomSeed}`;
     const data = [email, hashedpassword, fullName, avatarUrl];
     const [response] = await createUser(data);
 
@@ -128,5 +128,23 @@ exports.refresh_token = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "server error " });
+  }
+};
+exports.sign_out = async (req, res) => {
+  try {
+    res.clearCookie("REFRESH_TOKEN", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.status(200).json({
+      message: "logged out successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "server error",
+    });
   }
 };

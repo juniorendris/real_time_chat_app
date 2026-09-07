@@ -1,7 +1,7 @@
 const { verifyAccessToken } = require("../utils/jwt");
 
 exports.auth = async (req, res, next) => {
-  const authorization= req.headers?.authorization;
+  const authorization = req.headers?.authorization;
 
   if (!authorization) {
     return res.status(401).json({ message: "unauthorized" });

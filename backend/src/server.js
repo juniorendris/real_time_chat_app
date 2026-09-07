@@ -1,7 +1,16 @@
 require("dotenv").config();
 const express = require("express");
 const cookie_parser = require("cookie-parser");
+const cors = require("cors");
 const app = express();
+
+app.use(
+  cors({
+    origin:process.env.CLIENT_URL,
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 app.use(cookie_parser());
 const PORT = process.env.PORT || 3000;
@@ -9,7 +18,7 @@ const { createTable } = require("./config");
 
 app.use("/api/auth/", require("./routes/auth.Routes"));
 app.use("/api/user/", require("./routes/user.Routes"));
-app.use('/api/chat/',require('./routes/chat.Routes'));
+app.use("/api/chat/", require("./routes/chat.Routes"));
 app.listen(PORT, async () => {
   try {
     console.log(`server is running on port ${PORT} `);
