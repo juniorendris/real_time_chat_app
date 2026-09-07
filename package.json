@@ -1,0 +1,22 @@
+{
+  "name": "real-chat-message",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm install --prefix frontend && npm install --prefix backend && npm run build --prefix frontend ",
+    "start": "npm run start --prefix backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juniorendris/realTime_chat.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/juniorendris/realTime_chat/issues"
+  },
+  "homepage": "https://github.com/juniorendris/realTime_chat#readme"
+}
