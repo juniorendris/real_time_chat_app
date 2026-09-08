@@ -6,9 +6,12 @@ const app = express();
 const path = require("path");
 app.use(
   cors({
-    origin:process.env.CLIENT_URL,
+    origin: [
+      "http://localhost:5173", // Replace with your local frontend port if different
+      "https://real-time-chat-app-9xdd.onrender.com" // Your live frontend/backend URL
+    ],
     credentials: true,
-  }),
+  })
 );
 
 app.use(express.json());

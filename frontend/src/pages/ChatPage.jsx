@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Search, Video, Menu, X, Smile, Send } from "lucide-react";
 import {
@@ -149,8 +148,6 @@ const CustomComposer = () => {
   };
 
   const handleKeyDown = (event) => {
-    // Enter sends the message
-    // Shift + Enter creates a new line
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       sendMessage();
@@ -159,7 +156,6 @@ const CustomComposer = () => {
 
   return (
     <div className="relative">
-      {/* Emoji picker */}
       {showEmoji && (
         <div className="absolute bottom-16 left-3 z-50 shadow-2xl rounded-2xl overflow-hidden border border-base-300">
           <EmojiPicker
@@ -170,7 +166,6 @@ const CustomComposer = () => {
       )}
 
       <div className="flex items-end gap-2 bg-base-100 p-2 border-t border-base-300">
-        {/* Emoji button */}
         <button
           type="button"
           onClick={() => setShowEmoji((prev) => !prev)}
@@ -180,7 +175,6 @@ const CustomComposer = () => {
           <Smile className="size-5 text-base-content/70" />
         </button>
 
-        {/* Textarea */}
         <textarea
           value={text}
           onChange={(event) => setText(event.target.value)}
@@ -191,7 +185,6 @@ const CustomComposer = () => {
           className="flex-1 min-w-0 resize-none rounded-lg bg-base-200 px-3 py-2 outline-none border border-base-300 focus:border-primary"
         />
 
-        {/* Send button */}
         <button
           type="button"
           onClick={sendMessage}
@@ -215,9 +208,9 @@ export default function ChatPage() {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [channel, setChannel] = useState(null);
 
   const { data, isLoading: userLoading } = useAuthUser();
-
   const currentUser = data?.user;
 
   const {
@@ -229,9 +222,7 @@ export default function ChatPage() {
 
   const client = useCreateChatClient({
     apiKey: import.meta.env.VITE_STREAM_API_KEY,
-
     tokenOrProvider: token,
-
     userData: currentUser
       ? {
           id: String(currentUser.id),
@@ -241,21 +232,34 @@ export default function ChatPage() {
       : null,
   });
 
+  // Automatically create or get channel when navigating with a specific userId
+  useEffect(() => {
+    if (!client || !userId || !currentUser) return;
+
+    const initChannel = async () => {
+      try {
+        const newChannel = client.channel("messaging", {
+          members: [String(currentUser.id), String(userId)],
+        });
+        await newChannel.watch();
+        setChannel(newChannel);
+      } catch (error) {
+        console.error("Failed to initialize channel:", error);
+      }
+    };
+
+    initChannel();
+  }, [client, userId, currentUser]);
+
   if (userLoading || tokenLoading || !client) {
     return <Loading />;
   }
 
-  /* =========================
-     CHANNEL FILTERS
-  ========================= */
-
   const filters = {
     type: "messaging",
-
     members: {
       $in: [String(currentUser.id)],
     },
-
     ...(searchQuery.trim() && {
       name: {
         $autocomplete: searchQuery,
@@ -271,20 +275,12 @@ export default function ChatPage() {
     <div className="chat-page">
       <div className="chat-layout">
         <Chat client={client}>
-          {/* =========================
-              MOBILE OVERLAY
-          ========================= */}
-
           {isSidebarOpen && (
             <div
               className="chat-mobile-overlay"
               onClick={() => setIsSidebarOpen(false)}
             />
           )}
-
-          {/* =========================
-              SIDEBAR
-          ========================= */}
 
           <div
             className={`chat-sidebar ${
@@ -304,7 +300,6 @@ export default function ChatPage() {
               </button>
             </div>
 
-            {/* Search */}
             <div className="chat-search-wrapper">
               <div className="chat-search">
                 <Search className="size-4 text-base-content/40 shrink-0" />
@@ -320,23 +315,21 @@ export default function ChatPage() {
               </div>
             </div>
 
-            {/* Channels */}
             <div className="chat-channel-list">
               <ChannelList
                 filters={filters}
                 sort={sort}
                 sendChannelsToList
-                onSelect={() => setIsSidebarOpen(false)}
+                onSelect={(ch) => {
+                  setChannel(ch);
+                  setIsSidebarOpen(false);
+                }}
               />
             </div>
           </div>
 
-          {/* =========================
-              MAIN CHAT
-          ========================= */}
-
           <div className="chat-main">
-            <Channel>
+            <Channel channel={channel}>
               <Window>
                 <CustomHeader
                   onToggleSidebar={() =>
@@ -345,8 +338,6 @@ export default function ChatPage() {
                 />
 
                 <MessageList />
-
-                {/* Our own textarea composer */}
                 <CustomComposer />
               </Window>
 
@@ -358,4 +349,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
