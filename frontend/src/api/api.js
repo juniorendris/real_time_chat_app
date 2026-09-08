@@ -1,10 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL === "DEVELOPMENT"
-      ? "http://localhost:3000/api"
-      : "https://real-time-chat-app-9xdd.onrender.com",
+  baseURL: import.meta.env.MODE === "development"
+    ? "http://localhost:3000/api"
+    : "https://real-time-chat-app-9xdd.onrender.com/api",
 
   withCredentials: true,
 });
@@ -12,7 +11,7 @@ const api = axios.create({
 let access_token = localStorage.getItem("access_token");
 
 export const setAccessToken = (token) => {
-  access_token=token;
+  access_token = token;
   localStorage.setItem("access_token", token);
 };
 
