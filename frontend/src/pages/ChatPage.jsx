@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Search, Video, Menu, X, Smile, Send } from "lucide-react";
+
 import {
   Chat,
   Channel,
@@ -12,6 +13,7 @@ import {
   useChannelStateContext,
   useChatContext,
 } from "stream-chat-react";
+
 import EmojiPicker from "emoji-picker-react";
 import "stream-chat-react/dist/css/index.css";
 
@@ -74,7 +76,7 @@ const CustomHeader = ({ onToggleSidebar }) => {
 
         {/* Avatar */}
         <div className="avatar online">
-          <div className="w-9 h-9 rounded-full">
+          <div className="h-9 w-9 rounded-full">
             <img
               src={
                 avatar ||
@@ -88,9 +90,12 @@ const CustomHeader = ({ onToggleSidebar }) => {
         </div>
 
         {/* User name */}
-        <div>
-          <h5 className="leading-tight">{title}</h5>
-          <span className="text-[11px] text-success font-medium">
+        <div className="min-w-0">
+          <h5 className="truncate leading-tight">
+            {title}
+          </h5>
+
+          <span className="text-[11px] font-medium text-success">
             Online
           </span>
         </div>
@@ -155,9 +160,10 @@ const CustomComposer = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="custom-composer relative shrink-0">
+      {/* Emoji picker */}
       {showEmoji && (
-        <div className="absolute bottom-16 left-3 z-50 shadow-2xl rounded-2xl overflow-hidden border border-base-300">
+        <div className="absolute bottom-16 left-2 z-50 overflow-hidden rounded-2xl border border-base-300 shadow-2xl sm:left-3">
           <EmojiPicker
             theme="auto"
             onEmojiClick={handleEmojiClick}
@@ -165,16 +171,20 @@ const CustomComposer = () => {
         </div>
       )}
 
-      <div className="flex items-end gap-2 bg-base-100 p-2 border-t border-base-300">
+      {/* Composer */}
+      <div className="flex w-full items-end gap-2 border-t border-base-300 bg-base-100 p-2">
+        {/* Emoji */}
         <button
           type="button"
           onClick={() => setShowEmoji((prev) => !prev)}
           className="chat-icon-button shrink-0"
           title="Add Emoji"
+          disabled={sending}
         >
           <Smile className="size-5 text-base-content/70" />
         </button>
 
+        {/* Message input */}
         <textarea
           value={text}
           onChange={(event) => setText(event.target.value)}
@@ -182,9 +192,10 @@ const CustomComposer = () => {
           placeholder="Type a message..."
           rows={1}
           disabled={sending}
-      className="flex-1 min-w-0 resize-none rounded-lg bg-base-200 px-3 py-2 text-base-content placeholder:text-base-content/50 outline-none border border-base-300 focus:border-primary"
+          className="chat-message-input flex-1 min-w-0 resize-none rounded-lg border border-base-300 bg-base-200 px-3 py-2 text-base-content placeholder:text-base-content/50 outline-none focus:border-primary"
         />
 
+        {/* Send */}
         <button
           type="button"
           onClick={sendMessage}
@@ -210,7 +221,11 @@ export default function ChatPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [channel, setChannel] = useState(null);
 
-  const { data, isLoading: userLoading } = useAuthUser();
+  const {
+    data,
+    isLoading: userLoading,
+  } = useAuthUser();
+
   const currentUser = data?.user;
 
   const {
@@ -222,7 +237,9 @@ export default function ChatPage() {
 
   const client = useCreateChatClient({
     apiKey: import.meta.env.VITE_STREAM_API_KEY,
+
     tokenOrProvider: token,
+
     userData: currentUser
       ? {
           id: String(currentUser.id),
@@ -232,34 +249,67 @@ export default function ChatPage() {
       : null,
   });
 
-  // Automatically create or get channel when navigating with a specific userId
+  /* =========================
+     OPEN CHANNEL FROM URL
+  ========================= */
+
   useEffect(() => {
     if (!client || !userId || !currentUser) return;
+
+    let cancelled = false;
 
     const initChannel = async () => {
       try {
         const newChannel = client.channel("messaging", {
-          members: [String(currentUser.id), String(userId)],
+          members: [
+            String(currentUser.id),
+            String(userId),
+          ],
         });
+
         await newChannel.watch();
-        setChannel(newChannel);
+
+        if (!cancelled) {
+          setChannel(newChannel);
+        }
       } catch (error) {
-        console.error("Failed to initialize channel:", error);
+        console.error(
+          "Failed to initialize channel:",
+          error
+        );
       }
     };
 
     initChannel();
+
+    return () => {
+      cancelled = true;
+    };
   }, [client, userId, currentUser]);
 
-  if (userLoading || tokenLoading || !client) {
+  /* =========================
+     LOADING
+  ========================= */
+
+  if (
+    userLoading ||
+    tokenLoading ||
+    !client
+  ) {
     return <Loading />;
   }
 
+  /* =========================
+     CHANNEL FILTER
+  ========================= */
+
   const filters = {
     type: "messaging",
+
     members: {
       $in: [String(currentUser.id)],
     },
+
     ...(searchQuery.trim() && {
       name: {
         $autocomplete: searchQuery,
@@ -271,20 +321,33 @@ export default function ChatPage() {
     last_message_at: -1,
   };
 
+  /* =========================
+     UI
+  ========================= */
+
   return (
     <div className="chat-page">
       <div className="chat-layout">
         <Chat client={client}>
+          {/* Mobile overlay */}
           {isSidebarOpen && (
             <div
               className="chat-mobile-overlay"
-              onClick={() => setIsSidebarOpen(false)}
+              onClick={() =>
+                setIsSidebarOpen(false)
+              }
             />
           )}
 
+          {/* =========================
+              SIDEBAR
+          ========================= */}
+
           <div
             className={`chat-sidebar ${
-              isSidebarOpen ? "chat-sidebar-open" : ""
+              isSidebarOpen
+                ? "chat-sidebar-open"
+                : ""
             }`}
           >
             <div className="chat-sidebar-header flexBetween">
@@ -292,7 +355,9 @@ export default function ChatPage() {
 
               <button
                 type="button"
-                onClick={() => setIsSidebarOpen(false)}
+                onClick={() =>
+                  setIsSidebarOpen(false)
+                }
                 className="chat-icon-button md:hidden"
                 aria-label="Close sidebar"
               >
@@ -300,47 +365,61 @@ export default function ChatPage() {
               </button>
             </div>
 
+            {/* Search */}
             <div className="chat-search-wrapper">
               <div className="chat-search">
-                <Search className="size-4 text-base-content/40 shrink-0" />
+                <Search className="size-4 shrink-0 text-base-content/40" />
 
                 <input
                   type="text"
                   placeholder="Search channels..."
                   value={searchQuery}
                   onChange={(event) =>
-                    setSearchQuery(event.target.value)
+                    setSearchQuery(
+                      event.target.value
+                    )
                   }
                 />
               </div>
             </div>
 
+            {/* Channels */}
             <div className="chat-channel-list">
               <ChannelList
                 filters={filters}
                 sort={sort}
                 sendChannelsToList
-                onSelect={(ch) => {
-                  setChannel(ch);
+                onSelect={(selectedChannel) => {
+                  setChannel(selectedChannel);
                   setIsSidebarOpen(false);
                 }}
               />
             </div>
           </div>
 
+          {/* =========================
+              MAIN CHAT
+          ========================= */}
+
           <div className="chat-main">
             <Channel channel={channel}>
               <Window>
                 <CustomHeader
                   onToggleSidebar={() =>
-                    setIsSidebarOpen((prev) => !prev)
+                    setIsSidebarOpen(
+                      (prev) => !prev
+                    )
                   }
                 />
 
+                {/* Messages */}
                 <MessageList />
+
+                {/* Composer */}
                 <CustomComposer />
               </Window>
 
+              {/* Thread */}
               <Thread />
             </Channel>
           </div>

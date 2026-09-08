@@ -6,7 +6,9 @@
   themes: all;
 }
 
-/* THEME */
+/* =========================
+   THEME
+========================= */
 
 @theme {
   --font-sans: "Inter", sans-serif;
@@ -32,11 +34,12 @@
   --color-nexus-dot-orange: #f2994a;
 }
 
-/* GLOBAL */
+/* =========================
+   GLOBAL
+========================= */
 
 * {
   scroll-behavior: smooth;
-  /* Globally hide scrollbars while maintaining scroll functionality */
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
 }
@@ -53,7 +56,6 @@ body,
   width: 100%;
   height: 100%;
   min-height: 100%;
-  /* overflow: hidden; */
 }
 
 body {
@@ -61,7 +63,9 @@ body {
   font-family: var(--font-sans);
 }
 
-/* BASE */
+/* =========================
+   BASE
+========================= */
 
 @layer base {
   body {
@@ -85,7 +89,9 @@ body {
   }
 }
 
-/* REUSABLE COMPONENT UTILITIES */
+/* =========================
+   COMPONENT UTILITIES
+========================= */
 
 @layer components {
   .flexCenter {
@@ -105,7 +111,9 @@ body {
   }
 }
 
-/* TYPOGRAPHY */
+/* =========================
+   TYPOGRAPHY
+========================= */
 
 @layer utilities {
   h1 {
@@ -137,10 +145,11 @@ body {
   }
 }
 
-/* CHAT PAGE & STREAM OVERRIDES */
+/* =========================
+   CHAT PAGE
+========================= */
 
 @layer components {
-  /* Page Wrapper */
   .chat-page {
     @apply relative w-full overflow-hidden;
     height: calc(100dvh - 73px);
@@ -148,14 +157,24 @@ body {
   }
 
   .chat-layout {
-    @apply relative flex h-full w-full overflow-hidden bg-base-200;
+    @apply relative flex h-full w-full min-h-0 overflow-hidden bg-base-200;
   }
 
-  /* Chat Sidebar */
+  /* =========================
+     CHAT SIDEBAR
+  ========================= */
+
   .chat-sidebar {
     @apply flex shrink-0 flex-col overflow-hidden bg-base-100 text-base-content;
+
     width: 320px;
-    border-right: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+
+    border-right: 1px solid
+      color-mix(
+        in srgb,
+        currentColor 12%,
+        transparent
+      );
   }
 
   .chat-sidebar-header {
@@ -166,10 +185,15 @@ body {
     @apply shrink-0 px-3 pb-3;
   }
 
-  /* Search Bar */
   .chat-search {
     @apply flex h-10 w-full items-center gap-2 rounded-xl bg-base-200 px-3 text-base-content transition-all duration-200;
-    border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+
+    border: 1px solid
+      color-mix(
+        in srgb,
+        currentColor 12%,
+        transparent
+      );
   }
 
   .chat-search:hover {
@@ -192,23 +216,35 @@ body {
     @apply min-h-0 flex-1 overflow-y-auto;
   }
 
-  /* Main Pane */
+  /* =========================
+     MAIN CHAT
+  ========================= */
+
   .chat-main {
-    @apply flex flex-col min-w-0 flex-1 h-full overflow-hidden bg-base-200;
+    @apply flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-base-200;
   }
 
   .chat-empty-state {
     @apply flex h-full w-full items-center justify-center bg-base-200 px-6 text-base-content;
   }
 
-  /* Header */
+  /* =========================
+     HEADER
+  ========================= */
+
   .chat-header {
     @apply flex h-[60px] shrink-0 items-center justify-between bg-base-100 px-3 text-base-content sm:px-5;
-    border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+
+    border-bottom: 1px solid
+      color-mix(
+        in srgb,
+        currentColor 12%,
+        transparent
+      );
   }
 
   .chat-icon-button {
-    @apply flex h-9 w-9 items-center justify-center rounded-full text-base-content/60 transition-colors duration-200;
+    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base-content/60 transition-colors duration-200;
   }
 
   .chat-icon-button:hover {
@@ -219,51 +255,87 @@ body {
     transform: scale(0.96);
   }
 
-  /* Mobile Overlay */
+  /* =========================
+     MOBILE OVERLAY
+  ========================= */
+
   .chat-mobile-overlay {
     @apply fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] md:hidden;
   }
 
-  /* STREAM CHAT OVERRIDES */
+  /* =========================
+     STREAM CHAT
+  ========================= */
 
   .str-chat {
     --str-chat__font-family: var(--font-sans);
     --str-chat__background-color: transparent;
     --str-chat__main-panel-background-color: transparent;
     --str-chat__channel-list-background-color: transparent;
+
     @apply h-full w-full;
   }
 
   .str-chat__container {
-    @apply h-full w-full flex flex-row overflow-hidden;
+    @apply flex h-full w-full min-h-0 overflow-hidden;
   }
 
   .str-chat__main-panel {
-    @apply !min-w-0 !bg-base-200 h-full flex flex-col overflow-hidden;
+    @apply flex h-full min-h-0 min-w-0 flex-col overflow-hidden !bg-base-200;
   }
 
   .str-chat__channel {
-    @apply flex flex-col h-full w-full overflow-hidden;
+    @apply flex h-full w-full min-h-0 flex-col overflow-hidden;
   }
 
   .str-chat__window {
-    @apply flex flex-col h-full w-full overflow-hidden;
+    @apply flex h-full w-full min-h-0 min-w-0 flex-col overflow-hidden;
   }
 
-  /* Scrollable Message List */
+  /* =========================
+     MESSAGE LIST
+  ========================= */
+
   .str-chat__list,
   .str-chat__message-list {
-    @apply !bg-base-200 flex-1 overflow-y-auto min-h-0;
+    @apply flex min-h-0 flex-1 overflow-y-auto !bg-base-200;
   }
 
   .str-chat__message-list-scroll {
     @apply !px-3 !py-4 sm:!px-6 sm:!py-5;
   }
 
-  /* Fixed Input Box */
+  /* =========================
+     CUSTOM COMPOSER
+  ========================= */
+
+  .custom-composer {
+    @apply relative w-full shrink-0 bg-base-100;
+  }
+
+  .chat-message-input {
+    min-height: 40px;
+    max-height: 120px;
+  }
+
+  .chat-message-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* =========================
+     STREAM DEFAULT COMPOSER
+  ========================= */
+
   .str-chat__message-composer {
-    @apply !shrink-0 !bg-base-200 z-10;
-    border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent) !important;
+    @apply !z-10 !shrink-0 !bg-base-200;
+
+    border-top: 1px solid
+      color-mix(
+        in srgb,
+        currentColor 12%,
+        transparent
+      ) !important;
   }
 
   .str-chat__message-input {
@@ -273,7 +345,13 @@ body {
   .str-chat__message-textarea-container,
   .str-chat__message-input-inner {
     @apply !rounded-2xl !bg-base-100;
-    border: 1px solid color-mix(in srgb, currentColor 12%, transparent) !important;
+
+    border: 1px solid
+      color-mix(
+        in srgb,
+        currentColor 12%,
+        transparent
+      ) !important;
   }
 
   .str-chat__message-textarea,
@@ -286,25 +364,37 @@ body {
     @apply !text-base-content/40;
   }
 
-  /* Bubbles */
-  .str-chat__message-simple .str-chat__message-bubble,
-  .str-chat__message .str-chat__message-text-inner {
+  /* =========================
+     MESSAGE BUBBLES
+  ========================= */
+
+  .str-chat__message-simple
+    .str-chat__message-bubble,
+  .str-chat__message
+    .str-chat__message-text-inner {
     @apply !max-w-[75%] !rounded-2xl !border-0 !bg-base-300 !px-3 !py-2.5 !text-base-content sm:!px-4 sm:!py-3;
   }
 
-  .str-chat__message--me .str-chat__message-bubble,
-  .str-chat__message--me .str-chat__message-text-inner {
+  .str-chat__message--me
+    .str-chat__message-bubble,
+  .str-chat__message--me
+    .str-chat__message-text-inner {
     @apply !bg-primary !text-primary-content;
   }
 
-  /* Channel List Overrides */
+  /* =========================
+     CHANNEL LIST
+  ========================= */
+
   .str-chat__channel-list {
     background: transparent !important;
   }
 
   .str-chat__channel-preview {
     @apply !mx-2 !mb-1 !rounded-xl;
+
     background: transparent !important;
+
     transition:
       background-color 0.2s ease,
       transform 0.15s ease;
@@ -326,7 +416,10 @@ body {
     @apply !text-base-content/50;
   }
 
-  /* Send Button */
+  /* =========================
+     SEND BUTTON
+  ========================= */
+
   .str-chat__send-button {
     @apply !h-9 !w-9 !rounded-full !bg-primary;
   }
@@ -339,16 +432,32 @@ body {
     fill: currentColor !important;
   }
 
-  /* Mobile Layout Rules */
+  /* =========================
+     MOBILE
+  ========================= */
+
   @media (max-width: 767px) {
     .chat-page {
-      height: calc(100vh - 64px);
+      /*
+       * Use dynamic viewport height.
+       * This behaves better when the mobile keyboard opens.
+       */
+      height: calc(100dvh - 64px);
+      min-height: 0;
+    }
+
+    .chat-layout {
+      height: 100%;
+      min-height: 0;
     }
 
     .chat-sidebar {
       @apply fixed inset-y-0 left-0 z-50;
+
       width: min(86vw, 320px);
+
       transform: translateX(-100%);
+
       transition:
         transform 0.25s ease,
         box-shadow 0.25s ease;
@@ -356,16 +465,61 @@ body {
 
     .chat-sidebar.chat-sidebar-open {
       transform: translateX(0);
-      box-shadow: 8px 0 30px rgb(0 0 0 / 20%);
+
+      box-shadow:
+        8px 0 30px
+        rgb(0 0 0 / 20%);
     }
 
     .chat-header {
-      @apply !h-[58px] !px-2.5;
+      @apply !h-[58px] !shrink-0 !px-2.5;
+    }
+
+    .chat-main {
+      height: 100%;
+      min-height: 0;
+    }
+
+    .str-chat,
+    .str-chat__container,
+    .str-chat__main-panel,
+    .str-chat__channel,
+    .str-chat__window {
+      min-height: 0;
+    }
+
+    .str-chat__message-list,
+    .str-chat__list {
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .custom-composer {
+      /*
+       * Keep the composer inside the chat layout.
+       */
+      position: relative;
+      bottom: auto;
+      left: auto;
+      right: auto;
+
+      flex-shrink: 0;
+    }
+
+    .chat-message-input {
+      min-height: 40px;
+      max-height: 100px;
+    }
+
+    .chat-message-input {
+      font-size: 16px;
     }
   }
 }
 
-/* LAYOUT HELPERS */
+/* =========================
+   LAYOUT HELPERS
+========================= */
 
 @layer utilities {
   .page-content {

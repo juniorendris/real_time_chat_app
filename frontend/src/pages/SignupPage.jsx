@@ -194,7 +194,7 @@ const HandleSign = (e) => {
         </div>
         {/* right-side */}
         <figure className="h-120">
-          <img className="object-cover w-full h-full sm:hidden md:block" src="/right-img.jpg" alt="Movie" />
+          <img className="object-cover w-full h-full sm:hidden lg:block" src="/right-img.jpg" alt="Movie" />
         </figure>
       </div>
     </div>
