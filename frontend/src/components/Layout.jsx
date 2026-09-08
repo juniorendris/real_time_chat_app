@@ -103,7 +103,7 @@ function Layout() {
           <img
             src="/logo.png"
             alt="wollo connection"
-            className="h-33 w-33 is-drawer-close:hidden sm:hidden md:hidden lg:block"
+            className="h-33 w-50 is-drawer-close:hidden sm:hidden md:hidden lg:block"
           />
           <img
             src="/miniLogo.png"
