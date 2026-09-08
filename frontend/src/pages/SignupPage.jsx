@@ -142,21 +142,21 @@ const HandleSign = (e) => {
                   ></circle>
                 </g>
               </svg>
-              <input
-                type="password"
-                required
-                placeholder="Password"
-                minLength="8"
-                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                value={formData.password}
-                onChange={(e) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    password: e.target.value,
-                  }));
-                }}
-                title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
-              />
+          <input
+  type="password"
+  required
+  placeholder="Password"
+  minLength={8}
+  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[A-Za-z\d\s]{8,}"
+  value={formData.password}
+  onChange={(e) => {
+    setFormData((prev) => ({
+      ...prev,
+      password: e.target.value,
+    }));
+  }}
+  title="At least 8 characters, including a number, lowercase letter, and uppercase letter. Spaces are allowed."
+/>
             </label>
             <p className="validator-hint hidden">
               Must be more than 8 characters, including
@@ -194,7 +194,7 @@ const HandleSign = (e) => {
         </div>
         {/* right-side */}
         <figure className="h-120">
-          <img className="object-cover w-full h-full" src="/right-img.jpg" alt="Movie" />
+          <img className="object-cover w-full h-full sm:hidden md:block" src="/right-img.jpg" alt="Movie" />
         </figure>
       </div>
     </div>

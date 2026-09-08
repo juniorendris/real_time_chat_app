@@ -182,7 +182,7 @@ const CustomComposer = () => {
           placeholder="Type a message..."
           rows={1}
           disabled={sending}
-          className="flex-1 min-w-0 resize-none rounded-lg bg-base-200 px-3 py-2 outline-none border border-base-300 focus:border-primary"
+      className="flex-1 min-w-0 resize-none rounded-lg bg-base-200 px-3 py-2 text-base-content placeholder:text-base-content/50 outline-none border border-base-300 focus:border-primary"
         />
 
         <button

@@ -40,7 +40,7 @@ function Layout() {
       />
       <div className="drawer-content">
         {/* Navbar */}
-        <nav className="navbar w-full bg-base-300 sticky top-0 z-50">
+        <nav className="navbar w-full bg-base-300 sticky top-0 z-40">
           <label
             htmlFor="my-drawer-4"
             aria-label="open sidebar"
@@ -93,7 +93,7 @@ function Layout() {
         </div>
       </div>
 
-      <div className="drawer-side is-drawer-close:overflow-visible">
+      <div className="drawer-side z-50 is-drawer-close:overflow-visible">
         <label
           htmlFor="my-drawer-4"
           aria-label="close sidebar"
@@ -103,7 +103,7 @@ function Layout() {
           <img
             src="/logo.png"
             alt="wollo connection"
-            className="h-[30] w-[30] is-drawer-close:hidden sm:hidden md:hidden lg:block"
+            className="h-33 w-33 is-drawer-close:hidden sm:hidden md:hidden lg:block"
           />
           <img
             src="/miniLogo.png"
