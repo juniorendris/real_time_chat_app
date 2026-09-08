@@ -17,18 +17,12 @@ import useGetChatToken from "../hooks/useGetChatToken";
 import Loading from "../components/Loading";
 
 function CallPage() {
-  // Get callId from:
-  // /call/:callId
   const { callId } = useParams();
-
   const navigate = useNavigate();
 
-  // Get logged-in user
   const { data, isLoading: userLoading } = useAuthUser();
-
   const currentUser = data?.user;
 
-  // Get Stream Video token
   const {
     data: tokenData,
     isLoading: tokenLoading,
@@ -36,95 +30,93 @@ function CallPage() {
 
   const token = tokenData?.token;
 
-  // Stream Video client
   const [client, setClient] = useState(null);
-
-  // Current video call
   const [call, setCall] = useState(null);
 
   useEffect(() => {
-    // Wait until we have user, token and callId
     if (!currentUser || !token || !callId) {
       return;
     }
 
-    // Create Stream Video client
-    const videoClient = new StreamVideoClient({
-      apiKey: import.meta.env.VITE_STREAM_API_KEY,
+    let videoClient;
+    let videoCall;
+    let cancelled = false;
 
-      user: {
-        id: String(currentUser.id),
-        name: currentUser.fullName,
-        image: currentUser.image,
-      },
-
-      token,
-    });
-
-    // Create/get the video call
-    const videoCall = videoClient.call(
-      "default",
-      callId
-    );
-
-    // Join the call
-    const joinCall = async () => {
+    const startCall = async () => {
       try {
+        videoClient = new StreamVideoClient({
+          apiKey: import.meta.env.VITE_STREAM_API_KEY,
+          user: {
+            id: String(currentUser.id),
+            name: currentUser.fullName,
+            image: currentUser.image,
+          },
+          token,
+        });
+
+        videoCall = videoClient.call("default", callId);
+
         await videoCall.join({
           create: true,
         });
 
+        if (cancelled) {
+          await videoCall.leave();
+          await videoClient.disconnectUser();
+          return;
+        }
+
         setClient(videoClient);
         setCall(videoCall);
+
+        console.log("Joined call:", callId);
       } catch (error) {
-        console.error(
-          "Failed to join video call:",
-          error
-        );
+        console.error("Failed to join video call:", error);
       }
     };
 
-    joinCall();
+    startCall();
 
-    // Leave call when page closes
     return () => {
-      videoCall.leave().catch((error) => {
-        console.error("Failed to leave call:", error);
-      });
+      cancelled = true;
 
-      videoClient.disconnectUser().catch((error) => {
-        console.error(
-          "Failed to disconnect user:",
-          error
-        );
-      });
+      const cleanup = async () => {
+        try {
+          if (videoCall) {
+            await videoCall.leave();
+          }
+
+          if (videoClient) {
+            await videoClient.disconnectUser();
+          }
+        } catch (error) {
+          console.error("Call cleanup error:", error);
+        }
+      };
+
+      cleanup();
+
+      setCall(null);
+      setClient(null);
     };
   }, [currentUser, token, callId]);
 
-  // Show loading while preparing call
-  if (
-    userLoading ||
-    tokenLoading ||
-    !client ||
-    !call
-  ) {
+  if (userLoading || tokenLoading || !client || !call) {
     return <Loading />;
   }
 
   return (
-    <div className="h-screen w-ful">
+    <div className="h-screen w-full">
       <StreamVideo client={client}>
         <StreamTheme>
           <StreamCall call={call}>
-
             <div className="flex h-full flex-col">
-
-              {/* Video participants */}
+              {/* Participants */}
               <div className="min-h-0 flex-1">
                 <SpeakerLayout />
               </div>
 
-              {/* Camera / Mic / Leave buttons */}
+              {/* Controls */}
               <div className="shrink-0">
                 <CallControls
                   onLeave={() => {
@@ -132,9 +124,7 @@ function CallPage() {
                   }}
                 />
               </div>
-
             </div>
-
           </StreamCall>
         </StreamTheme>
       </StreamVideo>
