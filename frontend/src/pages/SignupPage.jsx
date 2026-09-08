@@ -44,7 +44,7 @@ const HandleSign = (e) => {
       <div className="card card-side bg-base-100 shadow-sm mx-w-200  ap-3 p-3">
         <div className="card-body">
           <div className="flex items-start justify-center w-60 self-center">
-            <img src="/logo.png" className="h-[33] w-[33] " alt="logo" />
+            <img src="/logo.png" className="h-26 w-26 " alt="logo" />
           </div>
           <p className="card-title text-yellow-500">
             Join the Wollo University Community

@@ -4,7 +4,7 @@ const api = axios.create({
   baseURL:
     import.meta.env.VITE_API_URL === "DEVELOPMENT"
       ? "http://localhost:3000/api"
-      : "/api",
+      : "https://real-time-chat-app-9xdd.onrender.com",
 
   withCredentials: true,
 });
