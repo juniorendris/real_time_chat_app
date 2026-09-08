@@ -27,7 +27,7 @@ if(process.env.NODE_ENV==="production"){
   app.use((req,res)=>{
     res.sendFile(path.join(__direname,"../frontend/dist/index.html"));
   });
-
+}
 
 app.listen(PORT, async () => {
   try {
