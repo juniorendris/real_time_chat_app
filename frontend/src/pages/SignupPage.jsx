@@ -72,7 +72,7 @@ const HandleSign = (e) => {
                 type="text"
                 required
                 placeholder="Username"
-                pattern="[A-Za-z][A-Za-z0-9\-]*"
+           pattern="[A-Za-z]+(?:[ '-][A-Za-z]+)*"
                 minLength="3"
                 maxLength="30"
                 value={formData.fullName}
@@ -82,7 +82,7 @@ const HandleSign = (e) => {
                     fullName: e.target.value,
                   }));
                 }}
-                title="Only letters, numbers or dash"
+              title="Enter a valid name using letters, spaces, apostrophes or hyphens"
               />
             </label>
             <p className="validator-hint hidden ">
@@ -193,8 +193,8 @@ const HandleSign = (e) => {
           </div>
         </div>
         {/* right-side */}
-        <figure className="h-120">
-          <img className="object-cover w-full h-full sm:hidden lg:block" src="/right-img.jpg" alt="Movie" />
+        <figure className="h-120 hidden md:block">
+          <img className="object-cover w-full h-full " src="/right-img.jpg" alt="Movie" />
         </figure>
       </div>
     </div>
